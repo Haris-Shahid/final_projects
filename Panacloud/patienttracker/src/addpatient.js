@@ -1,10 +1,9 @@
 import React, {Component} from 'react';
 import { View ,Text, TouchableHighlight, ActivityIndicator, StyleSheet , TextInput, Dimensions} from 'react-native';
-import { NewPatientAdd ,PatientDetailsAction } from './store/actions' ;
+import axios from 'axios';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview'
-import { connect } from 'react-redux';
 
-class AddPatient extends Component{
+export default class AddPatient extends Component{
     constructor(){
         super() ;
         this.state = {
@@ -18,47 +17,32 @@ class AddPatient extends Component{
          }
     }
 
-    componentDidMount(){
-      this.props.patientdetails();
-    }
-    
-
     adddata(){
         const { pname, age, disease, gender, pmedicine, cost } = this.state ;
-        if(!pname){
-            alert('please type your name')
-        }else if(!age){
-            alert('please type your age')
-        }else if(!disease){
-            alert('please type your disease')
-        }else if(!gender){
-            alert("please type your gender")
-        }else if(!pmedicine){
-            alert('please type doctor prescribed medicine')
-        }else if(!cost){
-            alert('Total Cost???')
-        }else{
-            this.setState({ loading: true })
-            let date = new Date();
-            let today = date.getDate();
-            let month = date.getMonth();
-            let year = date.getFullYear();
-            let fullDate = today + '/' + month + '/' + year;
-            // console.log(fullDate)
-            const details= {
-                pname, age, disease, gender, pmedicine, cost, date: fullDate 
-            }
-            this.props.NewPatientAdd(details);
-            this.setState({
-                pname:'',
-                age:'',
-                disease:'',
-                gender:'',
-                pmedicine: '',
-                cost: '',
-                loading: false
-            })
+        this.setState({ loading: true })
+        let date = new Date();
+        let today = date.getDate();
+        let month = date.getMonth();
+        let year = date.getFullYear();
+        let fullDate = today + '/' + month + '/' + year;
+        console.log(fullDate)
+        const details= {
+            pname, age, disease, gender, pmedicine, cost, date: fullDate 
         }
+        return axios.post('http://patienttracking.herokuapp.com/api/patientdetails', details)
+            .then((data) => {
+                this.setState({
+                    pname:'',
+                    age:'',
+                    disease:'',
+                    gender:'',
+                    pmedicine: '',
+                    cost: '',
+                    loading: false
+                })
+                alert('Patient is Added to the List')
+            })
+            .catch((err) => console.warn(err))
     }
 
     static navigationOptions = {
@@ -185,16 +169,3 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     }
 })
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        NewPatientAdd: (PatientInfo) => {
-            dispatch(NewPatientAdd(PatientInfo));
-        },
-        patientdetails: () => {
-            dispatch(PatientDetailsAction());
-        },
-    };
-}
-
-export default connect(null, mapDispatchToProps)(AddPatient)

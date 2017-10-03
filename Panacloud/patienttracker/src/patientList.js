@@ -1,33 +1,41 @@
 import React, {Component} from 'react';
 import { Text, Button, ActivityIndicator ,ListView ,AsyncStorage } from 'react-native';
 import Patient from './components/patients' ;
-import { connect } from 'react-redux';
-// import { PatientDetailsAction } from './store/actions' ;
+import axios from 'axios';
 
-class PatientList extends Component{
+export default class PatientList extends Component{
    constructor(){
        super()
        this.ds = new ListView.DataSource({
            rowHasChanged: (r1 ,r2)=> r1 !== r2
        }) ;
+    //    const details = []
        this.state = {
             details: [],
             loading: true            
+            // datasource: this.ds.cloneWithRows([])
        }
 
    }
    componentDidMount(){
+      axios.get('http://patienttracking.herokuapp.com/api/getAllPatient')
+        .then(({data}) => {
+            console.log(data)
+            var details = data ;
+            // console.warn(JSON.stringify(details))
             this.setState({
-                details: this.props.DetailsReducers.PatientsDetails,
+                details,
                 loading: false
             })
+        })
+        .catch((err) => console.warn(err)
+        )
     }
-        
-        static navigationOptions = {
-            title: 'Patient List',
-        };
-        render(){
-            console.log(this.state.details)
+
+    static navigationOptions = {
+        title: 'Patient List',
+      };
+    render(){
         let dataSource = this.ds.cloneWithRows(this.state.details)
         const { navigate } = this.props.navigation;
         return(
@@ -43,9 +51,3 @@ class PatientList extends Component{
         )
 }
 }
-
-const mapStateToProps = (state) => {
-    return state ;
-}
-// {PatientDetailsAction}
-export default connect(mapStateToProps, null )(PatientList);

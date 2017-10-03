@@ -1,10 +1,9 @@
 import React, {Component} from 'react';
 import { View ,Text, ActivityIndicator, Button, StyleSheet, TextInput,AsyncStorage, TouchableHighlight ,Dimensions ,ListView } from 'react-native';
 import Patient from './components/patients' ;
-import { connect } from 'react-redux';
 import axios from 'axios';
 
-class SearchPatient extends Component{
+export default class SearchPatient extends Component{
     constructor(){
         super()
         this.ds = new ListView.DataSource({
@@ -19,25 +18,37 @@ class SearchPatient extends Component{
  
     }
     
-       adddata(_){ 
+       adddata(_){
+        //    var a = this.state.Search;
+        //    AsyncStorage.getItem('@Patientdetails:users', (err, details) => {
+        //     var detail = JSON.parse(details) ;
+        //     console.log(detail) 
                 var details= this.state.unDetails.filter((details)=> this.search(details, _) )
                 this.setState({
                     details
                 })
+   
+        //    })
        }
        componentDidMount(){
-     
+        axios.get('http://patienttracking.herokuapp.com/api/getAllPatient')
+          .then(({data}) => {
+              console.log(data)
+              var unDetails = data ;
+              // console.warn(JSON.stringify(details))
               this.setState({
-                  unDetails: this.props.DetailsReducers.PatientsDetails,
+                  unDetails,
                   loading: false
               })
               this.adddata('')
-     
+          })
+          .catch((err) => console.warn(err)
+          )
       }
   
        search(details, what){
-           console.log(details.date , what)
-           if(details.pname.toLowerCase().search(what.toLowerCase()) !== -1 || details.date == what ){
+           console.log(details.date)
+           if(details.pname.toLowerCase().search(what.toLowerCase()) !== -1 || details.date.toLowerCase() == what.toLowerCase()){
                return true 
             } else{
                   return false
@@ -102,9 +113,3 @@ const styles = StyleSheet.create({
         backgroundColor: 'green' ,
     },
 })
-
-const mapStateToProps = (state) => {
-    return state ;
-}
-
-export default connect(mapStateToProps, null )(SearchPatient)

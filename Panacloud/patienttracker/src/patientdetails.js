@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
         borderWidth: StyleSheet.hairlineWidth ,
         backgroundColor: 'silver' ,
         width: width - 38 ,
-        height: height - 270 ,
+        height: height - 175 ,
         borderRadius: 20 , 
         
     },
